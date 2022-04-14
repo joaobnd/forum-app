@@ -1,13 +1,16 @@
 package br.com.gragote.forum.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -38,14 +42,16 @@ public class TopicosController {
 	private CursoRepository cursoRepository;
 	
 	@GetMapping
-	public List<TopicoDto> listagem(String nomeCurso) {
-		List<Topico> res;
+	public Page<TopicoDto> listagem(@RequestParam(required = false) String nomeCurso,
+			@PageableDefault(sort = "id", direction = Direction.ASC, page = 0, size = 3) Pageable paginacao) {
+		//localhost:8080/topicos?page=0&size=3&sort=id,asc
+		Page<Topico> res;
 		
 		if(nomeCurso == null) {
-			List<Topico> topicos = topicoRepository.findAll();
+			Page<Topico> topicos = topicoRepository.findAll(paginacao);
 			res = topicos;
 		} else {
-			List<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso);
+			Page<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso, paginacao);
 			res = topicos;
 		}
 		
